@@ -186,4 +186,7 @@ const (
 	TraceOtelCompression = "trace_otel_compression"
 	TraceOtelInsecure    = "trace_otel_insecure"
 	TraceOtelTimeout     = "trace_otel_timeout"
+
+	AuditRetentionLimit = "audit_retention_limit"
+	AuditStorageLimit   = "audit_storage_limit"
 )

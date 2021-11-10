@@ -16,11 +16,13 @@ package audit
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/goharbor/harbor/src/lib/q"
 	"github.com/goharbor/harbor/src/pkg/audit/model"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
 type fakeDao struct {
@@ -46,6 +48,11 @@ func (f *fakeDao) Create(ctx context.Context, repository *model.AuditLog) (int64
 func (f *fakeDao) Delete(ctx context.Context, id int64) error {
 	args := f.Called()
 	return args.Error(0)
+}
+
+func (f *fakeDao) Purge(ctx context.Context, timestamp time.Time) (int64, error) {
+	args := f.Called()
+	return int64(args.Int(0)), args.Error(1)
 }
 
 type managerTestSuite struct {
@@ -112,6 +119,14 @@ func (m *managerTestSuite) TestDelete() {
 	err := m.mgr.Delete(nil, 1)
 	m.Require().Nil(err)
 	m.dao.AssertExpectations(m.T())
+}
+
+func (m *managerTestSuite) TestPurge() {
+	m.dao.On("Purge", mock.Anything).Return(1, nil)
+	id, err := m.mgr.Purge(nil, time.Now())
+	m.Require().Nil(err)
+	m.dao.AssertExpectations(m.T())
+	m.Equal(int64(1), id)
 }
 
 func TestManager(t *testing.T) {

@@ -16,6 +16,9 @@ package dao
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	beegoorm "github.com/astaxie/beego/orm"
 	common_dao "github.com/goharbor/harbor/src/common/dao"
 	"github.com/goharbor/harbor/src/lib/errors"
@@ -23,7 +26,6 @@ import (
 	"github.com/goharbor/harbor/src/lib/q"
 	"github.com/goharbor/harbor/src/pkg/audit/model"
 	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
 type daoTestSuite struct {
@@ -155,6 +157,32 @@ func (d *daoTestSuite) TestDelete() {
 	var e *errors.Error
 	d.Require().True(errors.As(err, &e))
 	d.Equal(errors.NotFoundCode, e.Code)
+}
+
+func (d *daoTestSuite) TestPurge() {
+	id1, err := d.dao.Create(d.ctx, &model.AuditLog{
+		Operation:    "Create",
+		ResourceType: "artifact",
+		Resource:     "library/hello-world",
+		Username:     "admin",
+		ProjectID:    11,
+		OpTime:       time.Now().Add(time.Hour * -1),
+	})
+	d.Require().NotNil(id1)
+	d.Require().Nil(err)
+	id2, err := d.dao.Create(d.ctx, &model.AuditLog{
+		Operation:    "Create",
+		ResourceType: "artifact",
+		Resource:     "library/hello-world",
+		Username:     "admin",
+		ProjectID:    12,
+		OpTime:       time.Now().Add(time.Hour * 1),
+	})
+	d.Require().NotNil(id2)
+	d.Require().Nil(err)
+	n, err := d.dao.Purge(d.ctx, time.Now())
+	d.Require().Nil(err)
+	d.Equal(n, 1)
 }
 
 func TestDaoTestSuite(t *testing.T) {

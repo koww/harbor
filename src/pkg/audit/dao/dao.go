@@ -16,6 +16,8 @@ package dao
 
 import (
 	"context"
+	"time"
+
 	"github.com/goharbor/harbor/src/lib/errors"
 	"github.com/goharbor/harbor/src/lib/orm"
 	"github.com/goharbor/harbor/src/lib/q"
@@ -34,6 +36,8 @@ type DAO interface {
 	Get(ctx context.Context, id int64) (access *model.AuditLog, err error)
 	// Delete the audit log specified by ID
 	Delete(ctx context.Context, id int64) (err error)
+	// Purge the audit log specified by timestamp
+	Purge(ctx context.Context, timestamp time.Time) (total int64, err error)
 }
 
 // New returns an instance of the default DAO
@@ -117,4 +121,18 @@ func (d *dao) Delete(ctx context.Context, id int64) error {
 		return errors.NotFoundError(nil).WithMessage("access %d not found", id)
 	}
 	return nil
+}
+
+// Purge ...
+func (d *dao) Purge(ctx context.Context, timestamp time.Time) (int64, error) {
+	qs, err := orm.QuerySetter(ctx, model.AuditLog{}, q.New(map[string]interface{}{"op_time__lt": timestamp}))
+	if err != nil {
+		return 0, err
+	}
+	num, err := qs.Delete()
+	if err != nil {
+		return 0, err
+	}
+
+	return num, nil
 }

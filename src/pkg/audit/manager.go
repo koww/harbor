@@ -16,6 +16,8 @@ package audit
 
 import (
 	"context"
+	"time"
+
 	"github.com/goharbor/harbor/src/lib/q"
 	"github.com/goharbor/harbor/src/pkg/audit/dao"
 	"github.com/goharbor/harbor/src/pkg/audit/model"
@@ -36,6 +38,8 @@ type Manager interface {
 	Create(ctx context.Context, audit *model.AuditLog) (id int64, err error)
 	// Delete the audit log specified by ID
 	Delete(ctx context.Context, id int64) (err error)
+	// Purge the audit log specified by timestamp
+	Purge(ctx context.Context, timestamp time.Time) (total int64, err error)
 }
 
 // New returns a default implementation of Manager
@@ -72,4 +76,8 @@ func (m *manager) Create(ctx context.Context, audit *model.AuditLog) (int64, err
 // Delete ...
 func (m *manager) Delete(ctx context.Context, id int64) error {
 	return m.dao.Delete(ctx, id)
+}
+
+func (m *manager) Purge(ctx context.Context, timestamp time.Time) (int64, error) {
+	return m.dao.Purge(ctx, timestamp)
 }

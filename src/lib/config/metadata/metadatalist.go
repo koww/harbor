@@ -179,5 +179,8 @@ var (
 		{Name: common.TraceOtelCompression, Scope: SystemScope, Group: BasicGroup, EnvKey: "TRACE_OTEL_COMPRESSION", DefaultValue: "", ItemType: &BoolType{}, Editable: false, Description: `The compression of the Otel`},
 		{Name: common.TraceOtelInsecure, Scope: SystemScope, Group: BasicGroup, EnvKey: "TRACE_OTEL_INSECURE", DefaultValue: "", ItemType: &BoolType{}, Editable: false, Description: `The insecure of the Otel`},
 		{Name: common.TraceOtelTimeout, Scope: SystemScope, Group: BasicGroup, EnvKey: "TRACE_OTEL_TIMEOUT", DefaultValue: "", ItemType: &IntType{}, Editable: false, Description: `The timeout of the Otel`},
+
+		{Name: common.AuditRetentionLimit, Scope: SystemScope, Group: BasicGroup, EnvKey: "AUDIT_RETENTION_LIMIT", DefaultValue: "0", ItemType: &IntType{}, Editable: true, Description: `The audit retention period in days`},
+		{Name: common.AuditStorageLimit, Scope: SystemScope, Group: BasicGroup, EnvKey: "AUDIT_STORAGE_LIMIT", DefaultValue: "0", ItemType: &IntType{}, Editable: true, Description: `The max amount of audit log stored`},
 	}
 )
